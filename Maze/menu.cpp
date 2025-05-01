@@ -1,4 +1,4 @@
-// 난이도 선택 & 재시작 여부 확인
+// 난이도 선택 & 재시작 여부 확인하는 함수
 #include <iostream>
 #include <string>
 using namespace std;

@@ -1,4 +1,4 @@
-// 콘솔 출력에 필요한 커서 관련 함수. 추후 SDL2 전환 시 교체 예정 
+// 콘솔 출력에 필요한 함수. 추후 SDL2 전환 시 교체 예정 .
 #include <windows.h>
 
 void gotoxy(int x, int y) {

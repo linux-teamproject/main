@@ -1,4 +1,4 @@
-// 미로찾기 실행
+// 미로찾기 실행용 함수
 #include <iostream>
 using namespace std;
 

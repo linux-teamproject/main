@@ -1,4 +1,4 @@
-// 난이도에 따른 미로 크기 조절
+// 난이도에 따른 미로 크기 조절용 함수
 #include <vector>
 #include <stack>
 #include <random>

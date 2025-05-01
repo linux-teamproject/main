@@ -1,4 +1,4 @@
-// 플레이어 이동, 클리어 체크, 게임 진행 관리
+// 플레이어 이동, 클리어 체크, 게임 진행 관리용 함수
 #include <iostream>
 #include <conio.h>
 #include <windows.h>

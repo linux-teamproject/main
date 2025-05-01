@@ -1,4 +1,4 @@
-// 미로, 플레이어 콘솔에 출력
+// 미로, 플레이어 콘솔에 출력하는 함수
 #include <iostream>
 #include <vector>
 #include <string>
