@@ -1,20 +1,18 @@
-// 플레이어 이동, 클리어 체크, 게임 진행 관리용 함수
 #include <iostream>
 #include <conio.h>
 #include <windows.h>
 #include <vector>
 using namespace std;
 
-
 void gotoxy(int x, int y);
 void hideCursor();
+void clearScreen(); 
 int selectDifficulty();
 bool askRestart();
 void getMazeSizeByDifficulty(int, int&, int&);
 vector<vector<int>> generateMaze(int, int, int&, int&, int&, int&);
-void renderMaze(const vector<vector<int>>&, int, int, int, int);  
-void renderPlayer(int, int, const string&);                      
-
+void renderMaze(const vector<vector<int>>&, int, int, int, int);
+void renderPlayer(int, int, const string&);
 
 void clearPlayer(int x, int y) {
     gotoxy(x, y);
@@ -31,12 +29,11 @@ void runGame() {
         auto maze = generateMaze(WIDTH, HEIGHT, sx, sy, ex, ey);
         int px = sx, py = sy;
 
-        system("cls");
+        clearScreen(); 
         hideCursor();
-        renderMaze(maze, ex, ey, WIDTH, HEIGHT);   
+        renderMaze(maze, ex, ey, WIDTH, HEIGHT);
         renderPlayer(px, py, "@");
 
-        // 플레이어 이동 및 클리어 여부 확인
         while (true) {
             char ch = _getch();
             int dx = 0, dy = 0;
@@ -71,6 +68,6 @@ void runGame() {
         }
 
         cin.ignore();
-        system("cls");
+        clearScreen();
     }
 }
