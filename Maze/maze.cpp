@@ -5,6 +5,7 @@
 #include <utility>
 using namespace std;
 
+// 난이도에 따라 미로 크기 설정
 void getMazeSizeByDifficulty(int difficulty, int& width, int& height) {
     if (difficulty == 1) { width = 21; height = 21; }
     else if (difficulty == 2) { width = 31; height = 31; }
@@ -12,6 +13,7 @@ void getMazeSizeByDifficulty(int difficulty, int& width, int& height) {
     else { width = 21; height = 21; }
 }
 
+// DFS 알고리즘으로 랜덤한 미로 생성
 vector<vector<int>> generateMaze(int WIDTH, int HEIGHT, int& startX, int& startY, int& endX, int& endY) {
     vector<vector<int>> maze(HEIGHT, vector<int>(WIDTH, 1));
     stack<pair<int, int>> path;

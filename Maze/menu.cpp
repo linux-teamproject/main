@@ -1,4 +1,4 @@
-// 난이도 선택 & 재시작 여부 확인
+// 난이도 선택 & 재시작 & 조작법 안내
 #include <iostream>
 #include <string>
 using namespace std;
@@ -16,7 +16,7 @@ void showControls() {
     cout << "→ 방향키 : 오른쪽 이동\n";
     cout << "\n출구(E)를 찾아 미로를 탈출하세요!\n";
     cout << "────────────────────────────\n";
-    cout << "Enter 키를 누르면 메인 메뉴로 돌아갑니다...";
+    cout << "아무키나 누르면 메인 메뉴로 돌아갑니다...";
     cin.ignore(); 
     cin.get();    
     clearScreen();
