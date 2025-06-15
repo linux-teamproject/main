@@ -1,0 +1,6 @@
+test6 76 HARD
+test3 91 HARD
+test5 57 NORMAL
+test2 121 NORMAL
+test4 55 EASY
+test1 68 EASY

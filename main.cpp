@@ -58,6 +58,7 @@ const int dx[] = { 0, 0, -1, 1 };
 const int dy[] = { -1, 1, 0, 0 };
 int score(0);
 bool isViewingScores = false;  // 추가: 점수 조회 모드
+int scoreViewMode = 0; // 스코어 리스트 전환 (easy, normal, hard)
 
 struct ScoreEntry {
     std::string playerName;
@@ -65,10 +66,10 @@ struct ScoreEntry {
     std::string diff;
 };
 
-int difficulty_priority(const std::string& diff){
-    if(diff=="HARD")return 0;
-    else if(diff=="NORMAL")return 1;
-    else if(diff=="EASY")return 2;
+int difficulty_priority(const std::string& diff) {
+    if (diff == "HARD")return 0;
+    else if (diff == "NORMAL")return 1;
+    else if (diff == "EASY")return 2;
     else return 3;
 }
 
@@ -81,8 +82,8 @@ std::vector<ScoreEntry> load_scores(const std::string& filename) {
     std::string name;
     int score;
     std::string diff;
-    while (file >> name >> score>>diff) {
-        scores.push_back({name,score,diff});
+    while (file >> name >> score >> diff) {
+        scores.push_back({ name,score,diff });
     }
     file.close();
     return scores;
@@ -91,9 +92,9 @@ std::vector<ScoreEntry> load_scores(const std::string& filename) {
 // 점수 저장 함수
 void save_scores(const std::vector<ScoreEntry>& scores, const std::string& filename) {
     std::ofstream file(filename);
-    
+
     for (const auto& s : scores) {
-        file << s.playerName << " " << s.score << " "<< s.diff <<"\n";
+        file << s.playerName << " " << s.score << " " << s.diff << "\n";
     }
     file.close();
 }
@@ -102,12 +103,12 @@ void save_scores(const std::vector<ScoreEntry>& scores, const std::string& filen
 std::vector<ScoreEntry> scores;
 std::string currentPlayerName;
 bool isEnteringName = false;
-bool scoreSaved=false;
+bool scoreSaved = false;
 std::string nameInputBuffer;
 
 // 시작화면에 점수 리스트 그리기
 void draw_scores(SDL_Renderer* renderer, TTF_Font* font, const std::vector<ScoreEntry>& scores) {
-    SDL_Color white = {255, 255, 255, 255};
+    SDL_Color white = { 255, 255, 255, 255 };
     int y_start = HEIGHT / 4;
     int x_start = WIDTH / 2 - 200; // 시작 x 좌표
     int col_width[] = { 60, 120, 120, 120 }; // RANK, NAME, SCORE, MODE 너비
@@ -149,7 +150,7 @@ void draw_scores(SDL_Renderer* renderer, TTF_Font* font, const std::vector<Score
 
 // 이름 입력창 그리기
 void draw_name_input(SDL_Renderer* renderer, TTF_Font* font, const std::string& input) {
-    SDL_Color white = {255, 255, 255, 255};
+    SDL_Color white = { 255, 255, 255, 255 };
     std::string prompt = "Enter your name: " + input + "_";
 
     SDL_Surface* surface = TTF_RenderText_Solid(font, prompt.c_str(), white);
@@ -233,26 +234,41 @@ void draw_text_center(SDL_Renderer* renderer, TTF_Font* font, const char* msg, i
 
 // 게임 시작 화면
 void draw_start_screen(SDL_Renderer* renderer, TTF_Font* font) {
-    
+
     SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
     SDL_RenderClear(renderer);
     draw_text_center(renderer, font, "PRESS ENTER TO START", -140);
-    draw_text_center(renderer,font,"PRESS 'S' TO VIEW SCORES",-70);
-    draw_text_center(renderer,font,"PRESS 'Q' TO EXIT",0);
-    if(isEnteringName){
+    draw_text_center(renderer, font, "PRESS 'S' TO VIEW SCORES", -70);
+    draw_text_center(renderer, font, "PRESS 'Q' TO EXIT", 0);
+    if (isEnteringName) {
         draw_name_input(renderer, font, nameInputBuffer);
     }
     SDL_RenderPresent(renderer);
-    
-    
+
+
 }
 
-void draw_score_view(SDL_Renderer* renderer, TTF_Font* font){
+void draw_score_view(SDL_Renderer* renderer, TTF_Font* font) {
     SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
     SDL_RenderClear(renderer);
-    draw_text_center(renderer, font, "TOP SCORES", -250);
-    draw_scores(renderer,font,scores);
-    draw_text_center(renderer,font,"PRESS 'ESC' TO RETURN",HEIGHT/2-40);
+
+    // 현재 난이도에 맞는 제목 표시
+    const char* titles[] = { "EASY MODE SCORES", "NORMAL MODE SCORES", "HARD MODE SCORES" };
+    draw_text_center(renderer, font, titles[scoreViewMode], -250);
+
+    // 현재 난이도에 맞는 점수 필터링
+    std::vector<ScoreEntry> filtered;
+    std::string targetDiff = (scoreViewMode == 0 ? "EASY" :
+        scoreViewMode == 1 ? "NORMAL" : "HARD");
+
+    for (const auto& s : scores) {
+        if (s.diff == targetDiff) filtered.push_back(s);
+    }
+
+    // 점수 출력 및 안내 메시지
+    draw_scores(renderer, font, filtered);
+    draw_text_center(renderer, font, "[L]/[R] to switch difficulty / ESC to return", HEIGHT / 2 - 40);
+
     SDL_RenderPresent(renderer);
 }
 
@@ -297,7 +313,7 @@ void draw_game_over_screen(SDL_Renderer* renderer, TTF_Font* font) {
 }
 
 // 미로를 화면에 나타내는 함수
-void draw_maze(SDL_Renderer* renderer,TTF_Font* font) {
+void draw_maze(SDL_Renderer* renderer, TTF_Font* font) {
     SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
     SDL_RenderClear(renderer);
 
@@ -312,7 +328,7 @@ void draw_maze(SDL_Renderer* renderer,TTF_Font* font) {
             else if (maze[y][x] == EXIT && goalTexture) {
                 SDL_RenderCopy(renderer, goalTexture, NULL, &cell); // EXIT 그리기
             }
-            
+
         }
     }
 
@@ -329,7 +345,7 @@ void draw_maze(SDL_Renderer* renderer,TTF_Font* font) {
     // 점수 출력
     char scoreText[32];
     sprintf(scoreText, "Score: %d", score);
-    draw_text_center(renderer,font, scoreText, -(HEIGHT / 2) + 20);  // 상단 중앙
+    draw_text_center(renderer, font, scoreText, -(HEIGHT / 2) + 20);  // 상단 중앙
 
 }
 
@@ -350,7 +366,7 @@ void move_player(int dx, int dy) {
         player_y = new_y;
     }
 
-    
+
 
     if (maze[player_y][player_x] == EXIT) {
         isGameWin = true;           // 승리처리
@@ -409,9 +425,9 @@ void move_hard_enemy() {
                 hard_enemy_x[i] = nx;
                 hard_enemy_y[i] = ny;
 
-                if (nx > prev_x) hard_enemy_dir[i] = 2;   
+                if (nx > prev_x) hard_enemy_dir[i] = 2;
                 else if (nx < prev_x) hard_enemy_dir[i] = 1;
-                else if (ny > prev_y) hard_enemy_dir[i] = 0; 
+                else if (ny > prev_y) hard_enemy_dir[i] = 0;
                 else if (ny < prev_y) hard_enemy_dir[i] = 3;
 
                 if (hard_enemy_x[i] == player_x && hard_enemy_y[i] == player_y) {
@@ -498,7 +514,7 @@ int main() {
         }
     }
 
-    
+
 
     // normal mode 적 텍스처
     SDL_Surface* spriteSheet = IMG_Load("enemy.png");
@@ -549,12 +565,12 @@ int main() {
         else if (gameState == SELECT_DIFFICULTY)
             draw_difficulty_screen(renderer, font);
         else if (gameState == PLAYING) {
-            draw_maze(renderer,font);
+            draw_maze(renderer, font);
             draw_enemy(renderer);
             SDL_RenderPresent(renderer);
         }
-        else if(gameState==SCORE_VIEW){
-            draw_score_view(renderer,font);
+        else if (gameState == SCORE_VIEW) {
+            draw_score_view(renderer, font);
         }
         else
             draw_game_over_screen(renderer, font);
@@ -571,10 +587,11 @@ int main() {
                         else if (event.key.keysym.sym == SDLK_s) {
                             // 점수 불러오기 및 toggle
                             scores = load_scores("scoreText.txt");
-                            gameState=SCORE_VIEW;    
+                            scoreViewMode = 0;  // ← EASY부터 시작
+                            gameState = SCORE_VIEW;
                         }
-                        else if(event.key.keysym.sym==SDLK_q){
-                            running=false;
+                        else if (event.key.keysym.sym == SDLK_q) {
+                            running = false;
                         }
                     }
                     else {
@@ -583,9 +600,9 @@ int main() {
                                 currentPlayerName = nameInputBuffer;
                                 isEnteringName = false;
                                 gameState = SELECT_CHARACTER;
-                                isViewingScores=false;
-                                score=0;
-                                scoreSaved=false;
+                                isViewingScores = false;
+                                score = 0;
+                                scoreSaved = false;
                             }
                         }
                         else if (event.key.keysym.sym == SDLK_BACKSPACE && !nameInputBuffer.empty()) {
@@ -599,9 +616,15 @@ int main() {
                         }
                     }
                 }
-                else if(gameState==SCORE_VIEW){
-                    if(event.key.keysym.sym==SDLK_ESCAPE){
-                        gameState=START;
+                else if (gameState == SCORE_VIEW) {
+                    if (event.key.keysym.sym == SDLK_ESCAPE) {
+                        gameState = START;
+                    }
+                    else if (event.key.keysym.sym == SDLK_LEFT) {
+                        scoreViewMode = (scoreViewMode + 2) % 3;  
+                    }
+                    else if (event.key.keysym.sym == SDLK_RIGHT) {
+                        scoreViewMode = (scoreViewMode + 1) % 3;  
                     }
                 }
                 else if (gameState == SELECT_CHARACTER) {
@@ -626,7 +649,7 @@ int main() {
                         WIDTH = CELL_SIZE * COLS;
                         HEIGHT = CELL_SIZE * ROWS;
                         generate_maze();
-    
+
                         // 적 초기화 위치 설정 (출구, 입구 근처 생성 X, PATH 위에 생성)
                         if (selectedDifficulty == 1) {
                             for (int i = 0; i < ENEMY_COUNT; ++i) {
@@ -635,14 +658,14 @@ int main() {
                                     valid = true;
                                     enemy_x[i] = rand() % COLS;
                                     enemy_y[i] = rand() % ROWS;
-    
+
                                     // 플레이어 또는 출구와 가깝게 출력 X
                                     if (maze[enemy_y[i]][enemy_x[i]] != PATH ||
                                         (enemy_x[i] == player_x && enemy_y[i] == player_y) ||
                                         (abs(enemy_x[i] - exit_x) + abs(enemy_y[i] - exit_y) < 6)) {
                                         valid = false;
                                     }
-    
+
                                     // 다른 적과 겹치게 출력 X
                                     for (int j = 0; j < i; ++j) {
                                         if (enemy_x[i] == enemy_x[j] && enemy_y[i] == enemy_y[j]) {
@@ -653,7 +676,7 @@ int main() {
                                 } while (!valid);
                             }
                         }
-    
+
                         // Hard 모드 적 초기화 (4마리)
                         else if (selectedDifficulty == 2) {
                             for (int i = 0; i < HARD_ENEMY_COUNT; ++i) {
@@ -662,14 +685,14 @@ int main() {
                                     valid = true;
                                     hard_enemy_x[i] = rand() % COLS;
                                     hard_enemy_y[i] = rand() % ROWS;
-    
+
                                     // 플레이어나 출구와 너무 가까운 위치 제외
                                     if (maze[hard_enemy_y[i]][hard_enemy_x[i]] != PATH ||
                                         (hard_enemy_x[i] == player_x && hard_enemy_y[i] == player_y) ||
                                         (abs(hard_enemy_x[i] - exit_x) + abs(hard_enemy_y[i] - exit_y) < 6)) {
                                         valid = false;
                                     }
-    
+
                                     // 서로 겹치지 않게
                                     for (int j = 0; j < i; ++j) {
                                         if (hard_enemy_x[i] == hard_enemy_x[j] && hard_enemy_y[i] == hard_enemy_y[j]) {
@@ -680,14 +703,14 @@ int main() {
                                 } while (!valid);
                             }
                         }
-    
-    
+
+
                         // 창 크기 조정
                         SDL_SetWindowSize(window, WIDTH, HEIGHT);
-    
+
                         gameState = PLAYING;
                     }
-                
+
                 }
                 else if (gameState == PLAYING) {
                     if (event.key.keysym.sym == SDLK_LEFT) move_player(-1, 0);
@@ -696,20 +719,20 @@ int main() {
                     if (event.key.keysym.sym == SDLK_DOWN) move_player(0, 1);
                 }
                 else if (gameState == GAME_OVER) {
-                    if (!scoreSaved && !currentPlayerName.empty()&&isGameWin) {
+                    if (!scoreSaved && !currentPlayerName.empty() && isGameWin) {
                         std::string diff;
-                        if(selectedDifficulty==0)diff="EASY";
-                        else if(selectedDifficulty==1)diff="NORMAL";
-                        else diff="HARD";
-                        ScoreEntry newScore = { currentPlayerName, score, diff};
+                        if (selectedDifficulty == 0)diff = "EASY";
+                        else if (selectedDifficulty == 1)diff = "NORMAL";
+                        else diff = "HARD";
+                        ScoreEntry newScore = { currentPlayerName, score, diff };
                         scores = load_scores("scoreText.txt");
                         scores.push_back(newScore);
                         std::sort(scores.begin(), scores.end(), [](const ScoreEntry& a, const ScoreEntry& b) {
-                            int a_p=difficulty_priority(a.diff);
-                            int b_p=difficulty_priority(b.diff);
-                            if(a_p!=b_p) return a_p<b_p;
-                            else return a.score<b.score;
-                        });
+                            int a_p = difficulty_priority(a.diff);
+                            int b_p = difficulty_priority(b.diff);
+                            if (a_p != b_p) return a_p < b_p;
+                            else return a.score < b.score;
+                            });
                         save_scores(scores, "scoreText.txt");
                         scoreSaved = true;
                     }
@@ -745,7 +768,7 @@ int main() {
 
         SDL_Delay(16);
 
-        
+
     }
 
     SDL_DestroyRenderer(renderer);
@@ -756,4 +779,3 @@ int main() {
     SDL_Quit();
     return 0;
 }
-
