@@ -267,7 +267,7 @@ void draw_score_view(SDL_Renderer* renderer, TTF_Font* font) {
 
     // 점수 출력 및 안내 메시지
     draw_scores(renderer, font, filtered);
-    draw_text_center(renderer, font, "[L]/[R] to switch difficulty / ESC to return", HEIGHT / 2 - 40);
+    draw_text_center(renderer, font, "[L]/[R] to switch difficulty / ESC to return.", HEIGHT / 2 - 40);
 
     SDL_RenderPresent(renderer);
 }
